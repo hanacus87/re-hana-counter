@@ -80,6 +80,11 @@
   box-sizing: border-box;
 }
 
+html {
+  background: var(--color-bg);
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   background: radial-gradient(
