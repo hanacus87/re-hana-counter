@@ -108,7 +108,7 @@ describe("ログイン開始", () => {
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
   });
 
-  test("認可 URL に prompt=login が含まれ、毎回再認証させる", async () => {
+  test("認可 URL に prompt=login が含まれる", async () => {
     const { env } = testEnv();
     const res = await app.request(`${ORIGIN}/auth/login`, {}, env);
     const url = new URL(res.headers.get("Location")!);

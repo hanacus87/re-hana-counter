@@ -1,34 +1,10 @@
-import { Hono, type Context } from "hono";
-import { getCookie } from "hono/cookie";
+import { Hono } from "hono";
 import { deleteBalance, listBalances, upsertBalance } from "../lib/balance";
-import { isSameOrigin } from "../lib/security";
-import { SESSION_COOKIE, verifySession } from "../lib/session";
+import { requireSameOrigin } from "../lib/csrf";
+import { sessionSub } from "../lib/request-auth";
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_AMOUNT = 999999;
-
-function nowSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-async function sessionSub(
-  c: Context<{ Bindings: Env }>,
-): Promise<string | null> {
-  const token = getCookie(c, SESSION_COOKIE);
-  if (!token) {
-    return null;
-  }
-  try {
-    const { sub } = await verifySession(
-      token,
-      c.env.SESSION_SECRET,
-      nowSeconds(),
-    );
-    return sub;
-  } catch {
-    return null;
-  }
-}
 
 function isValidAmount(value: unknown): value is number {
   return (
@@ -54,20 +30,7 @@ function isValidDate(value: unknown): value is string {
 
 export const balanceRoutes = new Hono<{ Bindings: Env }>();
 
-balanceRoutes.use("/balance", async (c, next) => {
-  if (c.req.method !== "GET" && c.req.method !== "HEAD") {
-    if (
-      !isSameOrigin(
-        c.req.url,
-        c.req.header("Sec-Fetch-Site"),
-        c.req.header("Origin"),
-      )
-    ) {
-      return c.body(null, 403);
-    }
-  }
-  await next();
-});
+balanceRoutes.use("/balance", requireSameOrigin);
 
 balanceRoutes.get("/balance", async (c) => {
   c.header("Cache-Control", "no-store");

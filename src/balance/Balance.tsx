@@ -1,41 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../auth/auth-context";
 import { LoginButton } from "../auth/LoginButton";
-import { type BalanceMap } from "../lib/balance";
 import { nextMonth, nextYear, prevMonth, prevYear } from "../lib/calendar";
-import {
-  fetchBalances,
-  removeBalance,
-  saveBalance,
-  UNAUTHORIZED,
-} from "./balance-api";
 import { DayEditor } from "./DayEditor";
 import { MonthView } from "./MonthView";
+import { useBalanceRecords } from "./useBalanceRecords";
 import { YearView } from "./YearView";
 
 export function Balance() {
   const { user } = useAuth();
+  const { records, save, remove, loadFailed, unauthorized } =
+    useBalanceRecords(user);
   const [view, setView] = useState<"month" | "year">("month");
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [month, setMonth] = useState(() => new Date().getMonth() + 1);
-  const [records, setRecords] = useState<BalanceMap>({});
   const [editingDate, setEditingDate] = useState<string | null>(null);
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [unauthorized, setUnauthorized] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      void fetchBalances()
-        .then(setRecords)
-        .catch((error) => {
-          if (error instanceof Error && error.message === UNAUTHORIZED) {
-            setUnauthorized(true);
-          } else {
-            setLoadFailed(true);
-          }
-        });
-    }
-  }, [user]);
 
   if (!user || unauthorized) {
     return (
@@ -49,19 +28,13 @@ export function Balance() {
     throw new Error("failed to load balances");
   }
 
-  const save = async (date: string, bet: number, recovery: number) => {
-    await saveBalance(date, bet, recovery);
-    setRecords((prev) => ({ ...prev, [date]: { bet, recovery } }));
+  const handleSave = async (date: string, bet: number, recovery: number) => {
+    await save(date, bet, recovery);
     setEditingDate(null);
   };
 
-  const remove = async (date: string) => {
-    await removeBalance(date);
-    setRecords((prev) => {
-      const next = { ...prev };
-      delete next[date];
-      return next;
-    });
+  const handleDelete = async (date: string) => {
+    await remove(date);
     setEditingDate(null);
   };
 
@@ -118,8 +91,8 @@ export function Balance() {
         <DayEditor
           date={editingDate}
           record={records[editingDate] ?? null}
-          onSave={save}
-          onDelete={remove}
+          onSave={handleSave}
+          onDelete={handleDelete}
           onCancel={() => setEditingDate(null)}
         />
       )}

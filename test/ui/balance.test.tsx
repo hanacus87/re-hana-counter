@@ -142,7 +142,7 @@ describe("収支管理画面（アクセス制御）", () => {
 });
 
 describe("カレンダー（月）ビュー", () => {
-  test("遷移直後は当月の年月が 2026-06 のように数字で表示される", async () => {
+  test("初期表示で現在の年月が YYYY-MM 形式（例: 2026-06）で表示される", async () => {
     const { y, m } = currentYM();
     stub({ user: { userName: "花子" } });
     history.replaceState({}, "", "/balance");
@@ -150,7 +150,7 @@ describe("カレンダー（月）ビュー", () => {
     expect(await screen.findByText(`${y}-${pad(m)}`)).toBeTruthy();
   });
 
-  test("記録のある日は収支が ￥ 付きで表示され、記録の無い日は空欄になる", async () => {
+  test("記録のある日は収支が ￥ 付きで表示され、記録の無い日は金額が表示されない", async () => {
     const { y, m } = currentYM();
     stub({
       user: { userName: "花子" },
@@ -168,7 +168,7 @@ describe("カレンダー（月）ビュー", () => {
     );
   });
 
-  test("当月の月別総収支が各日収支の合計として表示される", async () => {
+  test("当月の月別総収支が各日収支の合計 -￥2,000 として表示される", async () => {
     const { y, m } = currentYM();
     stub({
       user: { userName: "花子" },
@@ -325,7 +325,7 @@ describe("日次入力・編集", () => {
     );
   });
 
-  test("Delete を押すとその日の記録が削除されセルが空欄になる", async () => {
+  test("削除を押すとその日の記録が削除されセルに金額が表示されなくなる", async () => {
     const { y, m } = currentYM();
     stub({
       user: { userName: "花子" },

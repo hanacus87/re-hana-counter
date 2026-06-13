@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { requireSameOrigin } from "../lib/csrf";
 import {
   buildAuthorizationUrl,
   createPkce,
@@ -7,8 +8,8 @@ import {
   randomToken,
 } from "../lib/oauth";
 import { verifyIdToken } from "../lib/oidc";
-import { isSameOrigin } from "../lib/security";
 import { SESSION_COOKIE, signSession } from "../lib/session";
+import { nowSeconds } from "../lib/time";
 import { upsertUser } from "../lib/users";
 
 const STATE_COOKIE = "__Host-oauth_state";
@@ -31,26 +32,9 @@ const sessionCookieOptions = {
   path: "/",
 } as const;
 
-function nowSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
 export const authRoutes = new Hono<{ Bindings: Env }>();
 
-authRoutes.use("/logout", async (c, next) => {
-  if (c.req.method !== "GET" && c.req.method !== "HEAD") {
-    if (
-      !isSameOrigin(
-        c.req.url,
-        c.req.header("Sec-Fetch-Site"),
-        c.req.header("Origin"),
-      )
-    ) {
-      return c.body(null, 403);
-    }
-  }
-  await next();
-});
+authRoutes.use("/logout", requireSameOrigin);
 
 authRoutes.get("/login", async (c) => {
   const { verifier, challenge } = await createPkce();

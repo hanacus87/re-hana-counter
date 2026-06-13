@@ -24,7 +24,7 @@ describe("upsertUser", () => {
     expect(await findUserName(db, "sub-1")).toBe("花子（改名）");
   });
 
-  test("記号（シングルクオート・セミコロン・ハイフン2つ）を含む表示名がそのまま保存・取得できる", async () => {
+  test("記号（シングルクオート・セミコロン・ハイフン2つ）を含む表示名が改変されず保存・取得できる", async () => {
     const db = createTestDb();
     const tricky = "Robert'); DROP TABLE users; --";
     await upsertUser(db, { sub: "sub-1", userName: tricky });

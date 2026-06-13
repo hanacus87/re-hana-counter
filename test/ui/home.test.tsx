@@ -159,7 +159,7 @@ describe("カウンター行", () => {
     expect(input("s2-target").value).toBe("99");
   });
 
-  test("s1-triangle は 9999 までの入力をそのまま表示する（例: 9999）", () => {
+  test("s1-triangle は上限と同じ 9999 の入力を丸めず 9999 と表示する", () => {
     render(<App />);
     fireEvent.change(input("s1-triangle"), { target: { value: "9999" } });
     expect(input("s1-triangle").value).toBe("9999");

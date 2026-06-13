@@ -1,5 +1,7 @@
 export type BalanceMap = Record<string, { bet: number; recovery: number }>;
 
+export const MAX_AMOUNT = 999999;
+
 export function net(bet: number, recovery: number): number {
   return recovery - bet;
 }

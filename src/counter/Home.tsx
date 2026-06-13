@@ -1,16 +1,9 @@
 import { useState } from "react";
-import { applyAction, type Mode } from "../lib/counter";
-import { sanitizeInput } from "../lib/sanitize";
-import {
-  DEFAULT_MAX,
-  maxFor,
-  resetAll,
-  sections,
-  type CounterValues,
-} from "../lib/state";
+import { type Mode } from "../lib/counter";
+import { resetAll, sections, type CounterValues } from "../lib/state";
 import { loadState, saveState } from "../lib/storage";
 import { TrashIcon } from "../shell/icons";
-import { Mark } from "./Mark";
+import { CounterRow } from "./CounterRow";
 
 export function Home() {
   const [values, setValues] = useState<CounterValues>(() =>
@@ -22,6 +15,9 @@ export function Home() {
     setValues(next);
     saveState(next, localStorage);
   };
+
+  const setValue = (id: string, value: number) =>
+    update({ ...values, [id]: value });
 
   return (
     <>
@@ -51,43 +47,16 @@ export function Home() {
       <main>
         {sections.map((section) => (
           <section key={section.id} className={`panel ${section.variant}`}>
-            {section.counters.map((counter) => {
-              const max = maxFor(counter.id);
-              return (
-                <div key={counter.id} className="counter">
-                  <input
-                    className={`value${max > DEFAULT_MAX ? " value-wide" : ""}`}
-                    type="text"
-                    inputMode="numeric"
-                    aria-label={`値 (${counter.id})`}
-                    value={values[counter.id]}
-                    onChange={(e) =>
-                      update({
-                        ...values,
-                        [counter.id]: sanitizeInput(e.target.value, max),
-                      })
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="tile"
-                    aria-label={`カウント (${counter.id})`}
-                    onClick={() =>
-                      update({
-                        ...values,
-                        [counter.id]: applyAction(
-                          values[counter.id],
-                          mode,
-                          max,
-                        ),
-                      })
-                    }
-                  >
-                    <Mark icon={counter.icon} />
-                  </button>
-                </div>
-              );
-            })}
+            {section.counters.map((counter) => (
+              <CounterRow
+                key={counter.id}
+                id={counter.id}
+                icon={counter.icon}
+                value={values[counter.id]}
+                mode={mode}
+                onChange={setValue}
+              />
+            ))}
           </section>
         ))}
       </main>

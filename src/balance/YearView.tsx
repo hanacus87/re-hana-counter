@@ -5,6 +5,7 @@ import {
   sumYear,
   type BalanceMap,
 } from "../lib/balance";
+import { PeriodBar } from "./PeriodBar";
 
 export function YearView({
   year,
@@ -23,25 +24,13 @@ export function YearView({
   const breakdown = monthlyBreakdown(records, year);
   return (
     <div className="year-view">
-      <div className="period-bar">
-        <button
-          type="button"
-          className="period-nav"
-          aria-label="前の年"
-          onClick={onPrev}
-        >
-          ‹
-        </button>
-        <span className="period-label">{year}</span>
-        <button
-          type="button"
-          className="period-nav"
-          aria-label="次の年"
-          onClick={onNext}
-        >
-          ›
-        </button>
-      </div>
+      <PeriodBar
+        label={`${year}`}
+        prevLabel="前の年"
+        nextLabel="次の年"
+        onPrev={onPrev}
+        onNext={onNext}
+      />
       <div className={`period-total ${signClass(total)}`}>
         {formatYen(total)}
       </div>

@@ -6,6 +6,7 @@ import {
   type BalanceMap,
 } from "../lib/balance";
 import { dateKey, monthGrid } from "../lib/calendar";
+import { PeriodBar } from "./PeriodBar";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -27,25 +28,13 @@ export function MonthView({
   const total = sumMonth(records, year, month);
   return (
     <div className="month-view">
-      <div className="period-bar">
-        <button
-          type="button"
-          className="period-nav"
-          aria-label="前の月"
-          onClick={onPrev}
-        >
-          ‹
-        </button>
-        <span className="period-label">{`${year}-${String(month).padStart(2, "0")}`}</span>
-        <button
-          type="button"
-          className="period-nav"
-          aria-label="次の月"
-          onClick={onNext}
-        >
-          ›
-        </button>
-      </div>
+      <PeriodBar
+        label={`${year}-${String(month).padStart(2, "0")}`}
+        prevLabel="前の月"
+        nextLabel="次の月"
+        onPrev={onPrev}
+        onNext={onNext}
+      />
       <div className={`period-total ${signClass(total)}`}>
         {formatYen(total)}
       </div>

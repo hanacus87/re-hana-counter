@@ -85,7 +85,7 @@ describe("サイドメニュー", () => {
     expect(screen.getByRole("button", { name: "ログアウト" })).toBeTruthy();
   });
 
-  test("HTML 特殊文字を含む userName が文字列としてそのまま表示される（エスケープされる）", async () => {
+  test("HTML 特殊文字を含む userName がエスケープされ文字列として表示される", async () => {
     const tricky = "<img src=x onerror=alert(1)>";
     stubAuth({ userName: tricky });
     render(<App />);

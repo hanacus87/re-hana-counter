@@ -1,3 +1,13 @@
+@font-face {
+  font-family: "Manrope";
+  src: url("/manrope-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+2000-206F, U+2074, U+20AC, U+2122, U+2212, U+2215, U+FFFD;
+}
+
 :root {
   --content-width: 92%;
 
@@ -45,6 +55,25 @@
   --mark-blue: #649bd3;
   --mark-triangle: #febf1e;
   --mark-reset: #cfd3d6;
+
+  --glass-blur: 14px;
+  --glass-saturate: 150%;
+  --glass-border: color-mix(in srgb, #ffffff 12%, transparent);
+  --glass-border-strong: color-mix(in srgb, #ffffff 22%, transparent);
+  --glass-highlight: inset 0 1px 0 color-mix(in srgb, #ffffff 16%, transparent);
+  --glass-shadow: 0 10px 30px color-mix(in srgb, #000000 35%, transparent);
+
+  --glass-panel: color-mix(in srgb, var(--color-panel) 55%, transparent);
+  --glass-card: color-mix(in srgb, var(--color-panel) 52%, transparent);
+  --glass-tile: color-mix(in srgb, var(--color-tile) 68%, transparent);
+  --glass-input: color-mix(in srgb, var(--color-input-bg) 48%, transparent);
+  --glass-modal: color-mix(in srgb, var(--color-panel) 68%, transparent);
+  --glass-drawer: color-mix(in srgb, var(--color-panel) 74%, transparent);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 280ms;
 }
 
 * {
@@ -53,9 +82,14 @@
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background: radial-gradient(
+    130% 100% at 50% 0%,
+    color-mix(in srgb, var(--color-bg) 86%, #ffffff) 0%,
+    var(--color-bg) 58%,
+    color-mix(in srgb, var(--color-bg) 90%, #000000) 100%
+  );
   color: var(--color-text);
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  font-family: "Manrope", system-ui, "Segoe UI", Roboto, sans-serif;
 }
 
 #root {
@@ -97,16 +131,22 @@ body {
   display: flex;
   justify-content: flex-end;
   z-index: 10;
+  animation: overlay-fade-in var(--dur) var(--ease);
 }
 
 .drawer {
   width: 70%;
   max-width: 280px;
   height: 100%;
-  background: var(--color-panel);
+  background: var(--glass-drawer);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-left: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   padding: 16px;
   display: flex;
   flex-direction: column;
+  animation: drawer-slide-in var(--dur-slow) var(--ease);
 }
 
 .drawer-links {
@@ -228,6 +268,7 @@ body {
   cursor: pointer;
   margin: 0;
   flex-shrink: 0;
+  transition: background-color var(--dur) var(--ease);
 }
 
 .toggle::before {
@@ -239,6 +280,7 @@ body {
   height: 18px;
   border-radius: 50%;
   background: var(--color-toggle-knob);
+  transition: left var(--dur) var(--ease);
 }
 
 .toggle:checked {
@@ -273,7 +315,9 @@ main {
 }
 
 .panel {
-  background: var(--color-panel);
+  background: var(--glass-panel);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight);
   border-radius: var(--radius-panel);
   padding: var(--panel-padding);
   display: grid;
@@ -286,7 +330,7 @@ main {
 }
 
 .panel.grouped {
-  border: 1px solid var(--color-panel-border);
+  border: 1px solid var(--glass-border-strong);
 }
 
 .panel.grouped > .counter:first-child:nth-last-child(odd) {
@@ -306,8 +350,8 @@ main {
   max-width: var(--input-width);
   min-width: 0;
   border-radius: var(--radius-input);
-  border: 1px solid var(--color-input-border);
-  background: var(--color-input-bg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-input);
   color: var(--color-text);
   font-size: 16px;
   text-align: center;
@@ -331,9 +375,10 @@ main {
   width: var(--tap-size);
   height: var(--tap-size);
   flex-shrink: 0;
-  border: none;
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-tile);
-  background: var(--color-tile);
+  background: var(--glass-tile);
+  box-shadow: var(--glass-highlight);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -415,6 +460,11 @@ main {
   color: var(--color-text);
   font-size: 14px;
   cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
 }
 
 .balance-toggle button.active {
@@ -480,9 +530,10 @@ main {
 
 .day-cell {
   min-height: 56px;
-  border: 1px solid var(--color-panel-border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-input);
-  background: var(--color-panel);
+  background: var(--glass-card);
+  box-shadow: var(--glass-highlight);
   color: var(--color-text);
   display: flex;
   flex-direction: column;
@@ -496,6 +547,7 @@ main {
 .day-cell.empty {
   border: none;
   background: none;
+  box-shadow: none;
   cursor: default;
 }
 
@@ -525,9 +577,10 @@ main {
   justify-content: space-between;
   min-height: var(--tap-size);
   padding: 0 16px;
-  border: 1px solid var(--color-panel-border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-tile);
-  background: var(--color-panel);
+  background: var(--glass-card);
+  box-shadow: var(--glass-highlight);
   color: var(--color-text);
   font-size: 16px;
   cursor: pointer;
@@ -545,17 +598,23 @@ main {
   align-items: center;
   justify-content: center;
   z-index: 20;
+  animation: overlay-fade-in var(--dur) var(--ease);
 }
 
 .modal {
   width: 80%;
   max-width: 320px;
-  background: var(--color-panel);
+  background: var(--glass-modal);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
   border-radius: var(--radius-panel);
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  animation: modal-pop-in var(--dur) var(--ease);
 }
 
 .modal-field {
@@ -573,8 +632,8 @@ main {
   width: calc(7ch + 20px);
   height: var(--input-height);
   border-radius: var(--radius-input);
-  border: 1px solid var(--color-input-border);
-  background: var(--color-input-bg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-input);
   color: var(--color-text);
   font-size: 16px;
   text-align: right;
@@ -596,4 +655,81 @@ main {
   color: var(--color-text);
   font-size: 14px;
   cursor: pointer;
+}
+
+@supports not (
+  (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+) {
+  .modal,
+  .drawer {
+    background: var(--color-panel);
+  }
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes drawer-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes modal-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.value,
+.amount-input,
+.day-amount,
+.month-amount,
+.period-total,
+.period-label {
+  font-variant-numeric: tabular-nums;
+}
+
+.tile,
+.day-cell:not(.empty),
+.month-row,
+.menu-button,
+.reset,
+.period-nav,
+.drawer-link,
+.modal-actions button,
+.login-button,
+.logout-button {
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.tile:active,
+.day-cell:not(.empty):active,
+.month-row:active,
+.reset:active,
+.period-nav:active,
+.drawer-link:active,
+.balance-toggle button:active,
+.modal-actions button:active,
+.login-button:active,
+.logout-button:active {
+  transform: scale(0.96);
+}
+
+.menu-button:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

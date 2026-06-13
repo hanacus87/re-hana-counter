@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("AuthProvider", () => {
-  test("/api/me が例外を投げても未ログイン扱いになる", async () => {
+  test("/api/me が例外を投げると「Google でログイン」が表示される", async () => {
     globalThis.fetch = (async () => {
       throw new Error("network down");
     }) as unknown as typeof fetch;
