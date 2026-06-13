@@ -85,3 +85,17 @@ describe("sanitizeInput", () => {
     });
   });
 });
+
+describe("sanitizeInput（収支管理の上限 999999 で再利用）", () => {
+  test('"999999" は 999999 を返す', () => {
+    expect(sanitizeInput("999999", 999999)).toBe(999999);
+  });
+
+  test('"1000000" は 999999 に丸める', () => {
+    expect(sanitizeInput("1000000", 999999)).toBe(999999);
+  });
+
+  test("不正文字を含む入力は 0 を返す", () => {
+    expect(sanitizeInput("12a", 999999)).toBe(0);
+  });
+});

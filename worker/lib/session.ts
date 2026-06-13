@@ -1,5 +1,7 @@
 import { sign, verify } from "hono/jwt";
 
+export const SESSION_COOKIE = "__Host-session";
+
 const ONE_DAY_SECONDS = 24 * 60 * 60;
 
 export type SessionClaims = {

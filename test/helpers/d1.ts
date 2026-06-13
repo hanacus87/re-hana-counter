@@ -1,14 +1,16 @@
 import { Database } from "bun:sqlite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import type { Db } from "../../worker/lib/users";
 
 export function createTestDb(): Db {
   const db = new Database(":memory:");
-  const migration = readFileSync(
-    new URL("../../migrations/0001_create_users.sql", import.meta.url),
-    "utf8",
-  );
-  db.run(migration);
+  const migrationsDir = new URL("../../migrations/", import.meta.url);
+  const files = readdirSync(migrationsDir)
+    .filter((name) => name.endsWith(".sql"))
+    .sort();
+  for (const file of files) {
+    db.run(readFileSync(new URL(file, migrationsDir), "utf8"));
+  }
 
   return {
     prepare(query: string) {
@@ -18,6 +20,9 @@ export function createTestDb(): Db {
           return {
             async first<T = Record<string, unknown>>() {
               return (db.query(query).get(...params) as T | null) ?? null;
+            },
+            async all<T = Record<string, unknown>>() {
+              return { results: db.query(query).all(...params) as T[] };
             },
             async run() {
               return db.query(query).run(...params);

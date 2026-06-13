@@ -6,3 +6,12 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
   }
   return `${base}; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; img-src 'self' data:`;
 }
+
+export function isSameOrigin(
+  requestUrl: string,
+  secFetchSite: string | undefined,
+  origin: string | undefined,
+): boolean {
+  const requestOrigin = new URL(requestUrl).origin;
+  return secFetchSite === "same-origin" || origin === requestOrigin;
+}
