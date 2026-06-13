@@ -3,14 +3,17 @@
 
   --header-height: 56px;
   --tap-size: 44px;
+  --auth-btn-height: 40px;
   --input-height: 36px;
   --input-width: calc(3ch + 20px);
+  --input-width-wide: calc(5ch + 20px);
   --counter-gap: 24px;
   --section-gap: 16px;
   --panel-padding: 16px;
   --radius-panel: 12px;
   --radius-tile: 10px;
   --radius-input: 6px;
+  --radius-button: 4px;
   --mark-size: 22px;
   --toggle-width: 44px;
   --toggle-height: 24px;
@@ -25,6 +28,10 @@
   --color-input-bg: #555555;
   --color-input-border: #6e6e6e;
   --color-input-focus: #009844;
+
+  --color-google-bg: #131314;
+  --color-google-border: #8e918f;
+  --color-google-text: #e3e3e3;
 
   --color-header: #009844;
   --color-header-icon: #ffffff;
@@ -100,26 +107,73 @@ body {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.drawer-link,
-.drawer-action,
-.login-button {
+.drawer-links {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-panel-border);
+}
+
+.drawer-link {
+  display: block;
+  width: 100%;
+  min-height: var(--tap-size);
+  padding: 14px 8px;
   color: var(--color-text);
   text-decoration: none;
   font-size: 16px;
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 8px 0;
+  border-bottom: 1px solid var(--color-panel-border);
+}
+
+.drawer-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-panel-border);
+}
+
+.login-button,
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: var(--auth-btn-height);
+  padding: 0 16px;
+  border-radius: var(--radius-button);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
 }
 
+.login-button {
+  background: var(--color-google-bg);
+  color: var(--color-google-text);
+  border: 1px solid var(--color-google-border);
+}
+
+.logout-button {
+  background: none;
+  color: var(--color-text);
+  border: 1px solid var(--color-panel-border);
+}
+
+.login-button svg,
+.logout-button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .drawer-user {
-  color: var(--color-text-muted);
-  padding: 8px 0;
-  border-top: 1px solid var(--color-panel-border);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
 }
 
 .centered {
@@ -262,6 +316,10 @@ main {
 
 .value::placeholder {
   color: var(--color-text-muted);
+}
+
+.value.value-wide {
+  max-width: var(--input-width-wide);
 }
 
 .value:focus {

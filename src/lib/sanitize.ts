@@ -1,8 +1,6 @@
-import { MAX_VALUE } from "./counter";
-
-export function sanitizeInput(raw: string): number {
+export function sanitizeInput(raw: string, max: number): number {
   if (!/^\d+$/.test(raw)) {
     return 0;
   }
-  return Math.min(MAX_VALUE, Number(raw));
+  return Math.min(max, Number(raw));
 }

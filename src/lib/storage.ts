@@ -1,5 +1,4 @@
-import { MAX_VALUE } from "./counter";
-import { counterIds, initialState, type CounterValues } from "./state";
+import { counterIds, initialState, maxFor, type CounterValues } from "./state";
 
 export const STORAGE_KEY = "hana-counter-values";
 
@@ -28,13 +27,12 @@ function parseSaved(raw: string | null): CounterValues | null {
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
     return null;
   }
-  const values = Object.values(parsed);
-  const isValid = values.every(
-    (value) =>
+  const isValid = Object.entries(parsed).every(
+    ([id, value]) =>
       typeof value === "number" &&
       Number.isInteger(value) &&
       value >= 0 &&
-      value <= MAX_VALUE,
+      value <= maxFor(id),
   );
   return isValid ? (parsed as CounterValues) : null;
 }

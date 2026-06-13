@@ -153,10 +153,22 @@ describe("カウンター行", () => {
     expect(input("s1-triangle").value).toBe("12");
   });
 
-  test("上限 99 を超える入力は 99 に丸めて表示される", () => {
+  test("上限 99 のカウンターでは 99 を超える入力は 99 に丸めて表示される（例: s2-target に 999）", () => {
     render(<App />);
-    fireEvent.change(input("s1-triangle"), { target: { value: "999" } });
-    expect(input("s1-triangle").value).toBe("99");
+    fireEvent.change(input("s2-target"), { target: { value: "999" } });
+    expect(input("s2-target").value).toBe("99");
+  });
+
+  test("s1-triangle は 9999 までの入力をそのまま表示する（例: 9999）", () => {
+    render(<App />);
+    fireEvent.change(input("s1-triangle"), { target: { value: "9999" } });
+    expect(input("s1-triangle").value).toBe("9999");
+  });
+
+  test("s1-triangle で 9999 を超える入力は 9999 に丸めて表示される（例: 12345）", () => {
+    render(<App />);
+    fireEvent.change(input("s1-triangle"), { target: { value: "12345" } });
+    expect(input("s1-triangle").value).toBe("9999");
   });
 
   test("入力のたび（onChange）に違反値（負値・小数・非数・空）は 0 にリセットされて表示される", () => {

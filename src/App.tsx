@@ -5,6 +5,8 @@ import { useAuth } from "./auth-context";
 import { applyAction, type Mode } from "./lib/counter";
 import { sanitizeInput } from "./lib/sanitize";
 import {
+  DEFAULT_MAX,
+  maxFor,
   resetAll,
   sections,
   type CounterIcon,
@@ -83,6 +85,45 @@ function TrashIcon() {
   );
 }
 
+function LogoutIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+    </svg>
+  );
+}
+
+function GoogleGIcon() {
+  return (
+    <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+      />
+      <path
+        fill="#34A853"
+        d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.859-3.048.859-2.344 0-4.328-1.583-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M3.964 10.709A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.709V4.959H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.041l3.007-2.332z"
+      />
+      <path
+        fill="#EA4335"
+        d="M9 3.58c1.321 0 2.508.454 3.44 1.346l2.582-2.581C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.959l3.007 2.332C4.672 5.163 6.656 3.58 9 3.58z"
+      />
+    </svg>
+  );
+}
+
 function Mark({ icon }: { icon: CounterIcon }) {
   if (icon === "triangle") {
     return <span className="mark-triangle" />;
@@ -104,6 +145,7 @@ function LoginError() {
 function LoginButton() {
   return (
     <a className="login-button" href="/auth/login">
+      <GoogleGIcon />
       Google でログイン
     </a>
   );
@@ -139,22 +181,27 @@ function Drawer({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <nav className="drawer" onClick={(e) => e.stopPropagation()}>
-        <Link to="/" className="drawer-link" onClick={onClose}>
-          カウンタ
-        </Link>
-        <Link to="/balance" className="drawer-link" onClick={onClose}>
-          収支管理
-        </Link>
-        {user ? (
-          <>
-            <span className="drawer-user">{user.userName}</span>
-            <button type="button" className="drawer-action" onClick={logout}>
-              ログアウト
-            </button>
-          </>
-        ) : (
-          <LoginButton />
-        )}
+        <div className="drawer-links">
+          <Link to="/" className="drawer-link" onClick={onClose}>
+            カウンタ
+          </Link>
+          <Link to="/balance" className="drawer-link" onClick={onClose}>
+            収支管理
+          </Link>
+        </div>
+        <div className="drawer-footer">
+          {user ? (
+            <>
+              <span className="drawer-user">{user.userName}</span>
+              <button type="button" className="logout-button" onClick={logout}>
+                <LogoutIcon />
+                ログアウト
+              </button>
+            </>
+          ) : (
+            <LoginButton />
+          )}
+        </div>
       </nav>
     </div>
   );
@@ -231,36 +278,43 @@ function Home() {
       <main>
         {sections.map((section) => (
           <section key={section.id} className={`panel ${section.variant}`}>
-            {section.counters.map((counter) => (
-              <div key={counter.id} className="counter">
-                <input
-                  className="value"
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={`値 (${counter.id})`}
-                  value={values[counter.id]}
-                  onChange={(e) =>
-                    update({
-                      ...values,
-                      [counter.id]: sanitizeInput(e.target.value),
-                    })
-                  }
-                />
-                <button
-                  type="button"
-                  className="tile"
-                  aria-label={`カウント (${counter.id})`}
-                  onClick={() =>
-                    update({
-                      ...values,
-                      [counter.id]: applyAction(values[counter.id], mode),
-                    })
-                  }
-                >
-                  <Mark icon={counter.icon} />
-                </button>
-              </div>
-            ))}
+            {section.counters.map((counter) => {
+              const max = maxFor(counter.id);
+              return (
+                <div key={counter.id} className="counter">
+                  <input
+                    className={`value${max > DEFAULT_MAX ? " value-wide" : ""}`}
+                    type="text"
+                    inputMode="numeric"
+                    aria-label={`値 (${counter.id})`}
+                    value={values[counter.id]}
+                    onChange={(e) =>
+                      update({
+                        ...values,
+                        [counter.id]: sanitizeInput(e.target.value, max),
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="tile"
+                    aria-label={`カウント (${counter.id})`}
+                    onClick={() =>
+                      update({
+                        ...values,
+                        [counter.id]: applyAction(
+                          values[counter.id],
+                          mode,
+                          max,
+                        ),
+                      })
+                    }
+                  >
+                    <Mark icon={counter.icon} />
+                  </button>
+                </div>
+              );
+            })}
           </section>
         ))}
       </main>

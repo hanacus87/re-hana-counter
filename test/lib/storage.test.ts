@@ -68,6 +68,13 @@ describe("loadState", () => {
     expect(loadState(storage)).toEqual(state);
   });
 
+  test("s1-triangle は上限9999以内の値（例: 5000）を復元する", () => {
+    const storage = memoryStorage();
+    const state = { ...initialState(), "s1-triangle": 5000 };
+    storage.setItem(STORAGE_KEY, JSON.stringify(state));
+    expect(loadState(storage)).toEqual(state);
+  });
+
   test("storage が空（初回起動）のときは初期状態を返す（全11カウンターすべて 0）", () => {
     const state = loadState(memoryStorage());
     expect(Object.keys(state)).toHaveLength(11);
@@ -112,16 +119,21 @@ describe("loadState — 壊れたデータのフォールバック", () => {
     }
   });
 
-  test("99 を超える値を含む場合、初期状態にフォールバックする", () => {
-    const storage = memoryStorage();
-    storage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ ...initialState(), "s1-triangle": 100 }),
-    );
-    expect(loadState(storage)).toEqual(initialState());
+  test("カウンターごとの上限を超える値を含む場合、初期状態にフォールバックする（s2-target に 100、s1-triangle に 10000）", () => {
+    for (const invalid of [
+      { id: "s2-target", value: 100 },
+      { id: "s1-triangle", value: 10000 },
+    ]) {
+      const storage = memoryStorage();
+      storage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ ...initialState(), [invalid.id]: invalid.value }),
+      );
+      expect(loadState(storage)).toEqual(initialState());
+    }
   });
 
-  test("負値を含む場合、初期状態にフォールバックする（0〜99 の整数のみ有効）", () => {
+  test("負値を含む場合、初期状態にフォールバックする（0 未満の整数は無効）", () => {
     const storage = memoryStorage();
     storage.setItem(
       STORAGE_KEY,
