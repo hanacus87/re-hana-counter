@@ -14,6 +14,18 @@
   "assets": {
     "binding": "ASSETS",
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "re-hana-counter",
+      "database_id": "3e9e905e-3164-4c7c-8f03-e43ca00dd74e",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "vars": {
+    "GOOGLE_CLIENT_ID": "797104750608-amqvnh3jsf6i0spf7c3k9koc51ta0jhh.apps.googleusercontent.com",
+    "GOOGLE_REDIRECT_URI": "https://hana-counter.hanacus87.net/auth/callback",
+  },
   "observability": {
     "enabled": true,
   },

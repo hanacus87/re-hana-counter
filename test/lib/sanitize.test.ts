@@ -8,7 +8,7 @@
  * 入力の都度（onChange）適用する。
  */
 import { describe, expect, test } from "bun:test";
-import { sanitizeInput } from "../src/lib/sanitize";
+import { sanitizeInput } from "../../src/lib/sanitize";
 
 describe("sanitizeInput", () => {
   describe("0〜99 の整数文字列はその数値を返す", () => {

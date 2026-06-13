@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { Component, useState, type ReactNode } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router";
+import { AuthProvider } from "./auth";
+import { useAuth } from "./auth-context";
 import { applyAction, type Mode } from "./lib/counter";
 import { sanitizeInput } from "./lib/sanitize";
 import {
@@ -49,6 +51,22 @@ function Flower() {
   );
 }
 
+function MenuIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
 function TrashIcon() {
   return (
     <svg
@@ -78,6 +96,101 @@ function Mark({ icon }: { icon: CounterIcon }) {
 function NotFound() {
   return <main className="notfound">404</main>;
 }
+
+function LoginError() {
+  return <main className="notfound">403</main>;
+}
+
+function LoginButton() {
+  return (
+    <a className="login-button" href="/auth/login">
+      Google でログイン
+    </a>
+  );
+}
+
+function Balance() {
+  const { user } = useAuth();
+  if (!user) {
+    return (
+      <main className="centered">
+        <LoginButton />
+      </main>
+    );
+  }
+  return (
+    <main className="balance">
+      <h1>収支管理</h1>
+    </main>
+  );
+}
+
+function Drawer({ onClose }: { onClose: () => void }) {
+  const { user, refresh } = useAuth();
+  const logout = async () => {
+    await fetch("/auth/logout", { method: "POST" });
+    await refresh();
+    onClose();
+  };
+  return (
+    <div
+      className="drawer-overlay"
+      aria-label="メニューを閉じる"
+      onClick={onClose}
+    >
+      <nav className="drawer" onClick={(e) => e.stopPropagation()}>
+        <Link to="/" className="drawer-link" onClick={onClose}>
+          カウンタ
+        </Link>
+        <Link to="/balance" className="drawer-link" onClick={onClose}>
+          収支管理
+        </Link>
+        {user ? (
+          <>
+            <span className="drawer-user">{user.userName}</span>
+            <button type="button" className="drawer-action" onClick={logout}>
+              ログアウト
+            </button>
+          </>
+        ) : (
+          <LoginButton />
+        )}
+      </nav>
+    </div>
+  );
+}
+
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <>
+          <header className="header">
+            <a href="/" className="home-link" aria-label="ホームへ">
+              <Flower />
+            </a>
+          </header>
+          <main className="notfound">500</main>
+        </>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export { ErrorBoundary };
 
 function Home() {
   const [values, setValues] = useState<CounterValues>(() =>
@@ -155,18 +268,42 @@ function Home() {
   );
 }
 
-export default function App() {
+function Shell() {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <BrowserRouter>
+    <>
       <header className="header">
         <Link to="/" className="home-link" aria-label="ホームへ">
           <Flower />
         </Link>
+        <button
+          type="button"
+          className="menu-button"
+          aria-label="メニュー"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <MenuIcon />
+        </button>
       </header>
+      {menuOpen && <Drawer onClose={() => setMenuOpen(false)} />}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/balance" element={<Balance />} />
+        <Route path="/login-error" element={<LoginError />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <ErrorBoundary>
+          <Shell />
+        </ErrorBoundary>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

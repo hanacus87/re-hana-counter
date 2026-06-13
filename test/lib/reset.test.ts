@@ -6,7 +6,7 @@
  * state は全11カウンターの値マップ（カウンター id から値への対応）を指す。
  */
 import { describe, expect, test } from "bun:test";
-import { counterIds, initialState, resetAll } from "../src/lib/state";
+import { counterIds, initialState, resetAll } from "../../src/lib/state";
 
 function sampleState(): Record<string, number> {
   const state: Record<string, number> = {};

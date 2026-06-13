@@ -5,7 +5,7 @@
  * 全カウンターは同一の動作をする（アイコンは見た目の違いのみ）。
  */
 import { describe, expect, test } from "bun:test";
-import { counterIds, sections, type CounterIcon } from "../src/lib/state";
+import { counterIds, sections, type CounterIcon } from "../../src/lib/state";
 
 describe("カウンター構成", () => {
   test("セクションは plain・grouped・grouped の順に3つ並ぶ", () => {

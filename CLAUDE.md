@@ -60,7 +60,10 @@
 - スタイルは素の CSS。色・寸法は CSS 変数で一元管理する。
   CSS-in-JS やプリプロセッサは使わない。
 - 状態管理は `useState` / `useReducer` と props で完結させる。
-  React Context は使用しない。導入はユーザーの事前承認を必須とする。
+  React Context は認証状態（ログインユーザー情報）の共有にのみ使用する。
+  他用途への拡大はユーザーの事前承認を必須とする。
+- 認証・JWT・Cookie 処理は hono 組み込み機能で実装する。
+  Auth SDK・ORM は追加しない。
 - 依存パッケージの追加はユーザーの事前承認を必須とする。
 
 ### コード構成
@@ -70,10 +73,27 @@
   （テストファイルは仕様書を兼ねるため、この限りではない）
 - 増減・下げ止まり・リセット・バリデーション・永続化のロジックは
   UI から分離した純粋関数として `src/lib/` に置く。
-- localStorage アクセスは Storage を引数注入する形にする
-  （`loadState(storage)` / `saveState(state, storage)` — test/storage.test.ts 参照）。
+- localStorage アクセスは Storage を引数注入する形にする（test/lib/storage.test.ts 参照）。
+- D1 アクセスは D1Database を引数注入した関数として `worker/lib/` に置く。
+- 現在時刻・乱数などの非決定値は引数で受け取る。
 - カウンター構成の追加・削除・変更が `src/lib/state.ts` の `sections` 配列の
   変更のみで完結するようにする。
+- テストは対象レイヤーごとに `test/lib/`（純粋関数）・`test/worker/`（API・配信）・
+  `test/ui/`（画面）に配置する。
+
+### API・認証・セキュリティ
+
+- API がクライアントへ返すのは、画面表示・表示制御に必要な最小限の情報のみ。
+  内部識別子・トークン・シークレットを応答に含めない。
+- 保存・取得するユーザー情報は機能に必要な最小限に限定する
+  （現状: sub と userName のみ。OIDC スコープも openid profile に限定）。
+- ID トークンは OIDC Core の検証手順（署名・iss・aud・azp・exp・nonce）を
+  すべて実施する。検証の省略・簡略化をしない。
+- シークレットは wrangler secret で管理し、リポジトリ・wrangler.jsonc に
+  平文で書かない。
+- 認証・セッション・Cookie・外部サービス連携・データ保護など、セキュリティに
+  関わる設計は、実装の前に敵対的評価（攻撃者視点での脆弱性レビュー）を行い、
+  その結果をテストとして固定してから着手する。OIDC に限らず適用する。
 
 ## コーディング規約
 

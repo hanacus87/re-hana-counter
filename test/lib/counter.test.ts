@@ -11,7 +11,7 @@ import {
   decrement,
   increment,
   MAX_VALUE,
-} from "../src/lib/counter";
+} from "../../src/lib/counter";
 
 describe("MAX_VALUE", () => {
   test("カウンター値の上限は 99", () => {

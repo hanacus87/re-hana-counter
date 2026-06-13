@@ -11,8 +11,8 @@
  * グローバルの localStorage には依存しない。
  */
 import { describe, expect, test } from "bun:test";
-import { counterIds, initialState } from "../src/lib/state";
-import { loadState, saveState, STORAGE_KEY } from "../src/lib/storage";
+import { counterIds, initialState } from "../../src/lib/state";
+import { loadState, saveState, STORAGE_KEY } from "../../src/lib/storage";
 
 function memoryStorage(): Storage {
   const store = new Map<string, string>();

@@ -63,6 +63,76 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.menu-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--tap-size);
+  height: var(--tap-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-header-icon);
+  cursor: pointer;
+  padding: 0;
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 10;
+}
+
+.drawer {
+  width: 70%;
+  max-width: 280px;
+  height: 100%;
+  background: var(--color-panel);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawer-link,
+.drawer-action,
+.login-button {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.drawer-user {
+  color: var(--color-text-muted);
+  padding: 8px 0;
+  border-top: 1px solid var(--color-panel-border);
+}
+
+.centered {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.balance {
+  width: var(--content-width);
+  margin: 0 auto;
+  padding: 16px 0;
 }
 
 .home-link {

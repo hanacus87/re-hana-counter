@@ -8,15 +8,23 @@
  * aria-label で特定する。ページ再読み込みは、いったんアンマウントしてから
  * 再描画することで再現する。
  */
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { fireEvent, render, screen } from "@testing-library/react";
-import App from "../src/App";
-import { counterIds } from "../src/lib/state";
-import { STORAGE_KEY } from "../src/lib/storage";
+import App from "../../src/App";
+import { counterIds } from "../../src/lib/state";
+import { STORAGE_KEY } from "../../src/lib/storage";
+
+const realFetch = globalThis.fetch;
 
 beforeEach(() => {
   localStorage.clear();
   history.replaceState({}, "", "/");
+  globalThis.fetch = (async () =>
+    new Response(null, { status: 401 })) as unknown as typeof fetch;
+});
+
+afterEach(() => {
+  globalThis.fetch = realFetch;
 });
 
 const input = (id: string) =>
