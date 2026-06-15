@@ -19,6 +19,11 @@ export function Home() {
   const setValue = (id: string, value: number) =>
     update({ ...values, [id]: value });
 
+  const handleReset = () => {
+    update(resetAll(values));
+    setMode("increment");
+  };
+
   return (
     <>
       <div className="mode-bar">
@@ -38,7 +43,7 @@ export function Home() {
             type="button"
             className="reset"
             aria-label="リセット"
-            onClick={() => update(resetAll(values))}
+            onClick={handleReset}
           >
             <TrashIcon />
           </button>

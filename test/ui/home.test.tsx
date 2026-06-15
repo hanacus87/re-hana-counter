@@ -128,6 +128,15 @@ describe("モード切替バー", () => {
       expect(input(id).value).toBe("0");
     }
   });
+
+  test("リセットアイコン押下後はインクリメントモードに戻る（リセットアイコンが消え、ボタン押下で値が 1 増える）", () => {
+    render(<App />);
+    fireEvent.click(modeToggle());
+    fireEvent.click(screen.getByLabelText("リセット"));
+    expect(screen.queryByLabelText("リセット")).toBeNull();
+    fireEvent.click(countButton("s1-triangle"));
+    expect(input("s1-triangle").value).toBe("1");
+  });
 });
 
 describe("カウンター行", () => {
