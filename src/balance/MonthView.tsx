@@ -1,4 +1,5 @@
 import {
+  formatDigits,
   formatYen,
   net,
   signClass,
@@ -66,7 +67,7 @@ export function MonthView({
                 <span className="day-number">{day}</span>
                 {amount !== null && (
                   <span className={`day-amount ${signClass(amount)}`}>
-                    {formatYen(amount)}
+                    {formatDigits(amount)}
                   </span>
                 )}
               </button>

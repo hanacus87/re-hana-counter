@@ -6,12 +6,15 @@ export function net(bet: number, recovery: number): number {
   return recovery - bet;
 }
 
-export function formatYen(amount: number): string {
-  const sign = amount > 0 ? "+" : amount < 0 ? "-" : "";
-  const digits = Math.abs(amount)
+export function formatDigits(amount: number): string {
+  return Math.abs(amount)
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${sign}￥${digits}`;
+}
+
+export function formatYen(amount: number): string {
+  const sign = amount > 0 ? "+" : amount < 0 ? "-" : "";
+  return `${sign}￥${formatDigits(amount)}`;
 }
 
 export function signClass(amount: number): "positive" | "negative" | "zero" {

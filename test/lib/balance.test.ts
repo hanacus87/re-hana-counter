@@ -4,10 +4,12 @@
  * 収支管理画面の純粋関数を UI から分離してテストする。
  * 各日の記録は投資と回収の2項目を持ち、表示する収支は回収から投資を引いた額。
  * 金額は ￥ と3桁区切りで表し、正は先頭に +、負は先頭に -、0 は符号なし。
+ * カレンダーの日セル表示用に、符号も ￥ も付けない絶対値の3桁区切りも別途用意する。
  * 色分けの区分（positive / negative / zero）は別途返す。
  */
 import { describe, expect, test } from "bun:test";
 import {
+  formatDigits,
   formatYen,
   monthlyBreakdown,
   net,
@@ -50,6 +52,28 @@ describe("formatYen（金額を表示用の文字列に整形する）", () => {
 
   test('999999 は "+￥999,999" になる', () => {
     expect(formatYen(999999)).toBe("+￥999,999");
+  });
+});
+
+describe("formatDigits（金額の絶対値を符号・￥なしの3桁区切りで返す）", () => {
+  test('2000 は "2,000" になる', () => {
+    expect(formatDigits(2000)).toBe("2,000");
+  });
+
+  test('-8000 は "8,000" になる（符号を付けない）', () => {
+    expect(formatDigits(-8000)).toBe("8,000");
+  });
+
+  test('0 は "0" になる', () => {
+    expect(formatDigits(0)).toBe("0");
+  });
+
+  test('500 は "500" になる（カンマなし）', () => {
+    expect(formatDigits(500)).toBe("500");
+  });
+
+  test('999999 は "999,999" になる', () => {
+    expect(formatDigits(999999)).toBe("999,999");
   });
 });
 

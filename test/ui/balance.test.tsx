@@ -6,8 +6,11 @@
  * 画面は文字見出しを持たず、月カレンダービューを既定表示とし、
  * Month / Year トグルで年ビュー（サマリ）と切り替える。
  * 曜日（日 月 火 水 木 金 土）以外の表示文字は日本語を使わない。
- * 入力（投資 / 回収）はカウンタと同じ即時補正。金額は ￥ と3桁区切りで、
+ * 入力（投資 / 回収）はカウンタと同じ即時補正。
+ * 合計サマリ（月・年）と年ビューの月別金額は ￥ と3桁区切りで、
  * 正は先頭に +、負は先頭に - を付けて表示する。
+ * 月カレンダーの日セルは符号も ￥ も付けない3桁区切りで表示し、
+ * 符号は色（正は positive / 負は negative の区分）で表す。
  */
 import { afterEach, describe, expect, test } from "bun:test";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -150,7 +153,7 @@ describe("カレンダー（月）ビュー", () => {
     expect(await screen.findByText(`${y}-${pad(m)}`)).toBeTruthy();
   });
 
-  test("記録のある日は収支が ￥ 付きで表示され、記録の無い日は金額が表示されない", async () => {
+  test("記録のある日のセルに収支が符号・￥なしの3桁区切りで表示され、記録の無い日は金額が表示されない", async () => {
     const { y, m } = currentYM();
     stub({
       user: { userName: "花子" },
@@ -158,14 +161,17 @@ describe("カレンダー（月）ビュー", () => {
     });
     history.replaceState({}, "", "/balance");
     render(<App />);
-    await waitFor(() =>
-      expect(screen.getByLabelText(key(y, m, 10)).textContent).toContain(
-        "+￥2,000",
-      ),
-    );
-    expect(screen.getByLabelText(key(y, m, 11)).textContent).not.toContain(
-      "￥",
-    );
+    await waitFor(() => {
+      const cell = screen.getByLabelText(key(y, m, 10));
+      const amount = cell.querySelector(".day-amount");
+      expect(amount?.textContent).toBe("2,000");
+    });
+    const cell = screen.getByLabelText(key(y, m, 10));
+    expect(cell.textContent).not.toContain("￥");
+    expect(cell.textContent).not.toContain("+");
+    const emptyCell = screen.getByLabelText(key(y, m, 11));
+    expect(emptyCell.querySelector(".day-amount")).toBeNull();
+    expect(emptyCell.textContent).toBe("11");
   });
 
   test("当月の月別総収支が各日収支の合計 -￥2,000 として表示される", async () => {
@@ -285,7 +291,7 @@ describe("日次入力・編集", () => {
     expect(bet.value).toBe("999999");
   });
 
-  test("投資3000・回収1000 を保存するとその日の収支表示が -￥2,000 になる", async () => {
+  test("投資3000・回収1000 を保存するとその日のセルに 2,000 が負（negative）の区分で表示される", async () => {
     const { y, m } = currentYM();
     stub({ user: { userName: "花子" } });
     history.replaceState({}, "", "/balance");
@@ -298,14 +304,16 @@ describe("日次入力・編集", () => {
       target: { value: "1000" },
     });
     fireEvent.click(screen.getByLabelText("保存"));
-    await waitFor(() =>
-      expect(screen.getByLabelText(key(y, m, 10)).textContent).toContain(
-        "-￥2,000",
-      ),
-    );
+    await waitFor(() => {
+      const amount = screen
+        .getByLabelText(key(y, m, 10))
+        .querySelector(".day-amount");
+      expect(amount?.textContent).toBe("2,000");
+      expect(amount?.className).toContain("negative");
+    });
   });
 
-  test("投資1000・回収3000 を保存するとその日の収支表示が +￥2,000 になる", async () => {
+  test("投資1000・回収3000 を保存するとその日のセルに 2,000 が正（positive）の区分で表示される", async () => {
     const { y, m } = currentYM();
     stub({ user: { userName: "花子" } });
     history.replaceState({}, "", "/balance");
@@ -318,14 +326,16 @@ describe("日次入力・編集", () => {
       target: { value: "3000" },
     });
     fireEvent.click(screen.getByLabelText("保存"));
-    await waitFor(() =>
-      expect(screen.getByLabelText(key(y, m, 10)).textContent).toContain(
-        "+￥2,000",
-      ),
-    );
+    await waitFor(() => {
+      const amount = screen
+        .getByLabelText(key(y, m, 10))
+        .querySelector(".day-amount");
+      expect(amount?.textContent).toBe("2,000");
+      expect(amount?.className).toContain("positive");
+    });
   });
 
-  test("削除を押すとその日の記録が削除されセルに金額が表示されなくなる", async () => {
+  test("削除を押すとその日の記録が削除されセルから金額が消える", async () => {
     const { y, m } = currentYM();
     stub({
       user: { userName: "花子" },
@@ -334,14 +344,17 @@ describe("日次入力・編集", () => {
     history.replaceState({}, "", "/balance");
     render(<App />);
     await waitFor(() =>
-      expect(screen.getByLabelText(key(y, m, 10)).textContent).toContain("￥"),
+      expect(
+        screen.getByLabelText(key(y, m, 10)).querySelector(".day-amount")
+          ?.textContent,
+      ).toBe("2,000"),
     );
     fireEvent.click(screen.getByLabelText(key(y, m, 10)));
     fireEvent.click(screen.getByLabelText("削除"));
     await waitFor(() =>
-      expect(screen.getByLabelText(key(y, m, 10)).textContent).not.toContain(
-        "￥",
-      ),
+      expect(
+        screen.getByLabelText(key(y, m, 10)).querySelector(".day-amount"),
+      ).toBeNull(),
     );
   });
 
