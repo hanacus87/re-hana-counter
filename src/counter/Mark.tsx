@@ -1,4 +1,4 @@
-import { type CounterIcon } from "../lib/state";
+import type { CounterIcon } from "../lib/state";
 
 const MARK_CLASS: Record<CounterIcon, string> = {
   triangle: "mark-triangle",

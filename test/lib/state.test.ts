@@ -8,11 +8,11 @@
  */
 import { describe, expect, test } from "bun:test";
 import {
+  type CounterIcon,
   counterIds,
   DEFAULT_MAX,
   maxFor,
   sections,
-  type CounterIcon,
 } from "../../src/lib/state";
 
 describe("カウンター構成", () => {

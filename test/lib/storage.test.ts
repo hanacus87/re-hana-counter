@@ -12,7 +12,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { counterIds, initialState } from "../../src/lib/state";
-import { loadState, saveState, STORAGE_KEY } from "../../src/lib/storage";
+import { loadState, STORAGE_KEY, saveState } from "../../src/lib/storage";
 
 function memoryStorage(): Storage {
   const store = new Map<string, string>();

@@ -1,4 +1,4 @@
-import { type MiddlewareHandler } from "hono";
+import type { MiddlewareHandler } from "hono";
 import { isSameOrigin } from "./security";
 
 export const requireSameOrigin: MiddlewareHandler<{ Bindings: Env }> = async (

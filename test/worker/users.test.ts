@@ -7,8 +7,8 @@
  * （テストではモックの D1 を注入する）。
  */
 import { describe, expect, test } from "bun:test";
-import { createTestDb } from "../helpers/d1";
 import { findUserName, upsertUser } from "../../worker/lib/users";
+import { createTestDb } from "../helpers/d1";
 
 describe("upsertUser", () => {
   test("初回ログインのユーザーは識別子と表示名で登録される", async () => {

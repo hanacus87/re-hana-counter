@@ -552,7 +552,7 @@ main {
   overflow: hidden;
 }
 
-.day-cell.empty {
+.day-cell.other-month {
   border: none;
   background: none;
   box-shadow: none;
@@ -565,6 +565,10 @@ main {
   left: 6px;
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+.day-cell.other-month .day-number {
+  opacity: 0.4;
 }
 
 .day-amount {
@@ -669,8 +673,9 @@ main {
 }
 
 @supports not (
-  (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
-) {
+    (-webkit-backdrop-filter: blur(1px)) or
+    (backdrop-filter: blur(1px))
+  ) {
   .modal,
   .drawer {
     background: var(--color-panel);
@@ -706,7 +711,7 @@ main {
 }
 
 .tile,
-.day-cell:not(.empty),
+.day-cell:not(.other-month),
 .month-row,
 .menu-button,
 .reset,
@@ -719,7 +724,7 @@ main {
 }
 
 .tile:active,
-.day-cell:not(.empty):active,
+.day-cell:not(.other-month):active,
 .month-row:active,
 .reset:active,
 .period-nav:active,
@@ -736,11 +741,9 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  :root {
+    --dur-fast: 0.01ms;
+    --dur: 0.01ms;
+    --dur-slow: 0.01ms;
   }
 }

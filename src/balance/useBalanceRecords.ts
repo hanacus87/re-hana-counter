@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { type User } from "../auth/auth-context";
-import { type BalanceMap } from "../lib/balance";
+import type { User } from "../auth/auth-context";
+import type { BalanceMap } from "../lib/balance";
 import {
   fetchBalances,
   removeBalance,

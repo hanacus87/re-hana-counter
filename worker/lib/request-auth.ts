@@ -1,4 +1,4 @@
-import { type Context } from "hono";
+import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { SESSION_COOKIE, verifySession } from "./session";
 import { nowSeconds } from "./time";

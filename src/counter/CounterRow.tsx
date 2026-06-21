@@ -1,5 +1,5 @@
 import { applyAction, type Mode } from "../lib/counter";
-import { DEFAULT_MAX, maxFor, type CounterIcon } from "../lib/state";
+import { type CounterIcon, DEFAULT_MAX, maxFor } from "../lib/state";
 import { NumericInput } from "../shell/NumericInput";
 import { Mark } from "./Mark";
 

@@ -9,19 +9,19 @@
 
 | コマンド                                           | 用途                                         |
 | -------------------------------------------------- | -------------------------------------------- |
-| `bun test`                                         | テスト実行                                   |
+| `bun run test`                                     | テスト実行                                   |
 | `bun run dev`                                      | 開発サーバ (Vite)                            |
 | `bun run build`                                    | 型チェック + 本番ビルド                      |
 | `bun run typecheck`                                | 型チェックのみ（アプリ・Worker・テスト全体） |
 | `bun run lint` / `bun run format` / `bun run knip` | 品質チェック（lint・整形・未使用検出）       |
 
-コミット前に `bun test` / `bun run typecheck` / `bun run lint` / `bun run format:check` をすべて通す。
+コミット前に `bun run test` / `bun run typecheck` / `bun run lint` / `bun run format:check` をすべて通す。
 
 ## TDD（必須）
 
 実装より先にテストを書く。**いかなる実装コードも、それを検証するテストより先に書かない。**
 
-1. **Red** — `test/` の該当 `test.todo()` をアサーション付きの実テストに起こし、`bun test` で失敗を確認する。
+1. **Red** — `test/` の該当 `test.todo()` をアサーション付きの実テストに起こし、`bun run test` で失敗を確認する。
 2. **Green** — テストを通す最小限の実装を書く。
 3. **Refactor** — テストが通る状態を保ったまま整理する。
 

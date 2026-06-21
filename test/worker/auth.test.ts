@@ -349,10 +349,7 @@ describe("コールバック — 成功時", () => {
 });
 
 describe("ユーザー情報 API", () => {
-  async function sessionCookie(
-    db: ReturnType<typeof createTestDb>,
-    sub: string,
-  ) {
+  async function sessionCookie(sub: string) {
     const token = await signSession(
       { sub },
       "session-secret",
@@ -366,7 +363,7 @@ describe("ユーザー情報 API", () => {
     await upsertUser(db, { sub: "sub-1", userName: "花子" });
     const res = await app.request(
       `${ORIGIN}/api/me`,
-      { headers: { Cookie: await sessionCookie(db, "sub-1") } },
+      { headers: { Cookie: await sessionCookie("sub-1") } },
       env,
     );
     expect(res.status).toBe(200);
@@ -378,7 +375,7 @@ describe("ユーザー情報 API", () => {
     await upsertUser(db, { sub: "sub-1", userName: "花子" });
     const res = await app.request(
       `${ORIGIN}/api/me`,
-      { headers: { Cookie: await sessionCookie(db, "sub-1") } },
+      { headers: { Cookie: await sessionCookie("sub-1") } },
       env,
     );
     const body = await res.text();
@@ -391,7 +388,7 @@ describe("ユーザー情報 API", () => {
     await upsertUser(db, { sub: "sub-1", userName: "花子" });
     const res = await app.request(
       `${ORIGIN}/api/me`,
-      { headers: { Cookie: await sessionCookie(db, "sub-1") } },
+      { headers: { Cookie: await sessionCookie("sub-1") } },
       env,
     );
     expect(res.headers.get("Cache-Control")).toBe("no-store");
@@ -402,7 +399,7 @@ describe("ユーザー情報 API", () => {
     await upsertUser(db, { sub: "sub-1", userName: "花子" });
     const res = await app.request(
       `${ORIGIN}/api/me`,
-      { headers: { Cookie: await sessionCookie(db, "sub-1") } },
+      { headers: { Cookie: await sessionCookie("sub-1") } },
       env,
     );
     expect(res.headers.get("Access-Control-Allow-Origin")).toBeNull();
@@ -421,10 +418,10 @@ describe("ユーザー情報 API", () => {
   });
 
   test("セッションは有効だがユーザーが D1 に存在しない場合（データベース初期化後など）は 401 を返す", async () => {
-    const { db, env } = testEnv();
+    const { env } = testEnv();
     const res = await app.request(
       `${ORIGIN}/api/me`,
-      { headers: { Cookie: await sessionCookie(db, "ghost") } },
+      { headers: { Cookie: await sessionCookie("ghost") } },
       env,
     );
     expect(res.status).toBe(401);

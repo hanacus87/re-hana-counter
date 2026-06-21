@@ -1,21 +1,47 @@
+export type DayCell = {
+  year: number;
+  month: number;
+  day: number;
+  inCurrentMonth: boolean;
+};
+
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
-export function monthGrid(year: number, month: number): (number | null)[][] {
+export function monthGrid(year: number, month: number): DayCell[][] {
   const leading = new Date(year, month - 1, 1).getDay();
   const total = daysInMonth(year, month);
-  const cells: (number | null)[] = [];
-  for (let i = 0; i < leading; i++) {
-    cells.push(null);
+  const cells: DayCell[] = [];
+
+  const prev = prevMonth(year, month);
+  const prevLast = daysInMonth(prev.year, prev.month);
+  for (let i = leading - 1; i >= 0; i--) {
+    cells.push({
+      year: prev.year,
+      month: prev.month,
+      day: prevLast - i,
+      inCurrentMonth: false,
+    });
   }
+
   for (let day = 1; day <= total; day++) {
-    cells.push(day);
+    cells.push({ year, month, day, inCurrentMonth: true });
   }
+
+  const next = nextMonth(year, month);
+  let nextDay = 1;
   while (cells.length % 7 !== 0) {
-    cells.push(null);
+    cells.push({
+      year: next.year,
+      month: next.month,
+      day: nextDay,
+      inCurrentMonth: false,
+    });
+    nextDay++;
   }
-  const weeks: (number | null)[][] = [];
+
+  const weeks: DayCell[][] = [];
   for (let i = 0; i < cells.length; i += 7) {
     weeks.push(cells.slice(i, i + 7));
   }

@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 import { useAuth } from "../auth/auth-context";
 import { LoginButton } from "../auth/LoginButton";
-import { Overlay } from "./Overlay";
 import { LogoutIcon } from "./icons";
+import { Overlay } from "./Overlay";
 
 export function Drawer({ onClose }: { onClose: () => void }) {
   const { user, refresh } = useAuth();

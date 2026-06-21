@@ -70,6 +70,16 @@ function key(y: number, m: number, d: number): string {
   return `${y}-${pad(m)}-${pad(d)}`;
 }
 
+function prevLastKey(y: number, m: number): string {
+  const d = new Date(y, m - 1, 0);
+  return key(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+function nextFirstKey(y: number, m: number): string {
+  const d = new Date(y, m, 1);
+  return key(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
 afterEach(() => {
   globalThis.fetch = realFetch;
 });
@@ -199,6 +209,68 @@ describe("カレンダー（月）ビュー", () => {
     expect(screen.getByText(`${nextY}-${pad(nextM)}`)).toBeTruthy();
     fireEvent.click(screen.getByLabelText("前の月"));
     expect(screen.getByText(`${y}-${pad(m)}`)).toBeTruthy();
+  });
+
+  test("前月末日のセルは薄い数字の span で表示されボタンではない", async () => {
+    stub({ user: { userName: "花子" } });
+    history.replaceState({}, "", "/balance");
+    const { container } = render(<App />);
+    await waitFor(() => {
+      expect(container.querySelector(".day-cell.other-month")).not.toBeNull();
+    });
+    const cell = container.querySelector(".day-cell.other-month");
+    expect(cell?.tagName).toBe("SPAN");
+    expect(cell?.querySelector(".day-amount")).toBeNull();
+  });
+
+  test("前月末日に記録があってもそのセルに金額が表示されない", async () => {
+    const { y, m } = currentYM();
+    stub({
+      user: { userName: "花子" },
+      records: { [prevLastKey(y, m)]: { bet: 1000, recovery: 3000 } },
+    });
+    history.replaceState({}, "", "/balance");
+    const { container } = render(<App />);
+    await waitFor(() => {
+      expect(container.querySelector(".day-cell.other-month")).not.toBeNull();
+    });
+    for (const cell of Array.from(
+      container.querySelectorAll(".day-cell.other-month"),
+    )) {
+      expect(cell.querySelector(".day-amount")).toBeNull();
+    }
+  });
+
+  test("次月初日に記録があってもそのセルに金額が表示されない", async () => {
+    const { y, m } = currentYM();
+    stub({
+      user: { userName: "花子" },
+      records: { [nextFirstKey(y, m)]: { bet: 5000, recovery: 1000 } },
+    });
+    history.replaceState({}, "", "/balance");
+    const { container } = render(<App />);
+    await waitFor(() => {
+      expect(container.querySelector(".day-cell.other-month")).not.toBeNull();
+    });
+    for (const cell of Array.from(
+      container.querySelectorAll(".day-cell.other-month"),
+    )) {
+      expect(cell.querySelector(".day-amount")).toBeNull();
+    }
+  });
+
+  test("前後月のセルをタップしても投資・回収の入力モーダルが開かない", async () => {
+    stub({ user: { userName: "花子" } });
+    history.replaceState({}, "", "/balance");
+    const { container } = render(<App />);
+    await waitFor(() => {
+      expect(container.querySelector(".day-cell.other-month")).not.toBeNull();
+    });
+    const cell = container.querySelector(
+      ".day-cell.other-month",
+    ) as HTMLElement;
+    fireEvent.click(cell);
+    expect(screen.queryByLabelText("投資")).toBeNull();
   });
 });
 

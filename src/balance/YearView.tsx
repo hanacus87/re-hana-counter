@@ -1,9 +1,9 @@
 import {
+  type BalanceMap,
   formatYen,
   monthlyBreakdown,
   signClass,
   sumYear,
-  type BalanceMap,
 } from "../lib/balance";
 import { PeriodBar } from "./PeriodBar";
 

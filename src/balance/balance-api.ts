@@ -1,4 +1,4 @@
-import { type BalanceMap } from "../lib/balance";
+import type { BalanceMap } from "../lib/balance";
 
 export const UNAUTHORIZED = "unauthorized";
 

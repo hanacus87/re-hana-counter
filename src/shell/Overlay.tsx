@@ -1,4 +1,4 @@
-import { type ElementType, type MouseEvent, type ReactNode } from "react";
+import type { ElementType, MouseEvent, ReactNode } from "react";
 
 export function Overlay({
   overlayClassName,

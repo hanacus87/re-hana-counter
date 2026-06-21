@@ -1,7 +1,8 @@
 /**
  * カレンダー生成・期間ナビゲーションの仕様
  *
- * 月グリッドは日曜始まりで、月初の前と月末の後ろは空セル（null）で埋める。
+ * 月グリッドは日曜始まりで、月初の前は前月末日、月末の後ろは次月初日の
+ * 実日付で埋める。各セルは年月日と当月かどうか（inCurrentMonth）を持つ。
  * 各週は7セル。月の日数はうるう年・平年で変わる。
  * 期間ナビゲーションは月送り・年送りで、月送りは年をまたぐ。
  * 日付キーは YYYY-MM-DD 形式（月と日は2桁ゼロ埋め）。
@@ -17,10 +18,20 @@ import {
 } from "../../src/lib/calendar";
 
 describe("monthGrid（日曜始まりの月グリッドを作る）", () => {
-  test("2026年6月は1日が月曜のため第1週の日曜のセルが空になる", () => {
+  test("2026年6月は1日が月曜のため第1週日曜のセルは前月の2026年5月31日になる", () => {
     const grid = monthGrid(2026, 6);
-    expect(grid[0][0]).toBeNull();
-    expect(grid[0][1]).toBe(1);
+    expect(grid[0][0]).toEqual({
+      year: 2026,
+      month: 5,
+      day: 31,
+      inCurrentMonth: false,
+    });
+    expect(grid[0][1]).toEqual({
+      year: 2026,
+      month: 6,
+      day: 1,
+      inCurrentMonth: true,
+    });
   });
 
   test("各週は7セルで構成される", () => {
@@ -29,25 +40,48 @@ describe("monthGrid（日曜始まりの月グリッドを作る）", () => {
     }
   });
 
-  test("その月に存在しない翌月の日付のセルは空になる", () => {
+  test("最終週末尾のセルは次月の2026年7月4日になる", () => {
     const grid = monthGrid(2026, 6);
-    const cells = grid.flat();
-    expect(cells).toContain(30);
-    expect(cells).not.toContain(31);
     const lastWeek = grid[grid.length - 1];
-    expect(lastWeek[lastWeek.length - 1]).toBeNull();
+    expect(lastWeek[lastWeek.length - 1]).toEqual({
+      year: 2026,
+      month: 7,
+      day: 4,
+      inCurrentMonth: false,
+    });
   });
 
-  test("2024年2月は29日まで含む（うるう年）", () => {
-    const cells = monthGrid(2024, 2).flat();
-    expect(cells).toContain(29);
-    expect(cells).not.toContain(30);
+  test("当月セルは inCurrentMonth が true、前後月セルは false になる", () => {
+    const grid = monthGrid(2026, 6);
+    expect(grid[0][0].inCurrentMonth).toBe(false);
+    expect(grid[0][1].inCurrentMonth).toBe(true);
   });
 
-  test("2026年2月は28日まで含む（平年）", () => {
-    const cells = monthGrid(2026, 2).flat();
-    expect(cells).toContain(28);
-    expect(cells).not.toContain(29);
+  test("2026年6月の当月セルは1日から30日で31日を含まない", () => {
+    const days = monthGrid(2026, 6)
+      .flat()
+      .filter((cell) => cell.inCurrentMonth)
+      .map((cell) => cell.day);
+    expect(days).toContain(30);
+    expect(days).not.toContain(31);
+  });
+
+  test("2024年2月の当月セルは29日まで含む（うるう年）", () => {
+    const days = monthGrid(2024, 2)
+      .flat()
+      .filter((cell) => cell.inCurrentMonth)
+      .map((cell) => cell.day);
+    expect(days).toContain(29);
+    expect(days).not.toContain(30);
+  });
+
+  test("2026年2月の当月セルは28日まで含む（平年）", () => {
+    const days = monthGrid(2026, 2)
+      .flat()
+      .filter((cell) => cell.inCurrentMonth)
+      .map((cell) => cell.day);
+    expect(days).toContain(28);
+    expect(days).not.toContain(29);
   });
 });
 

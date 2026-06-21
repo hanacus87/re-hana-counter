@@ -9,6 +9,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import {
+  type BalanceMap,
   formatDigits,
   formatYen,
   monthlyBreakdown,
@@ -16,7 +17,6 @@ import {
   signClass,
   sumMonth,
   sumYear,
-  type BalanceMap,
 } from "../../src/lib/balance";
 
 describe("net（回収から投資を引いた額を返す）", () => {

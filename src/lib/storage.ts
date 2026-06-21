@@ -1,4 +1,4 @@
-import { counterIds, initialState, maxFor, type CounterValues } from "./state";
+import { type CounterValues, counterIds, initialState, maxFor } from "./state";
 
 export const STORAGE_KEY = "hana-counter-values";
 

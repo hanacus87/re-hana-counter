@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import type { Db } from "../../worker/lib/users";
 
 export function createTestDb(): Db {

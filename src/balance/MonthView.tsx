@@ -1,10 +1,10 @@
 import {
+  type BalanceMap,
   formatDigits,
   formatYen,
   net,
   signClass,
   sumMonth,
-  type BalanceMap,
 } from "../lib/balance";
 import { dateKey, monthGrid } from "../lib/calendar";
 import { PeriodBar } from "./PeriodBar";
@@ -49,11 +49,15 @@ export function MonthView({
       <div className="month-grid">
         {monthGrid(year, month)
           .flat()
-          .map((day, index) => {
-            if (day === null) {
-              return <span key={`empty-${index}`} className="day-cell empty" />;
+          .map((cell) => {
+            const date = dateKey(cell.year, cell.month, cell.day);
+            if (!cell.inCurrentMonth) {
+              return (
+                <span key={date} className="day-cell other-month">
+                  <span className="day-number">{cell.day}</span>
+                </span>
+              );
             }
-            const date = dateKey(year, month, day);
             const record = records[date];
             const amount = record ? net(record.bet, record.recovery) : null;
             return (
@@ -64,7 +68,7 @@ export function MonthView({
                 aria-label={date}
                 onClick={() => onSelectDay(date)}
               >
-                <span className="day-number">{day}</span>
+                <span className="day-number">{cell.day}</span>
                 {amount !== null && (
                   <span className={`day-amount ${signClass(amount)}`}>
                     {formatDigits(amount)}

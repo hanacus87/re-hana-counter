@@ -1,4 +1,4 @@
-import { Hono, type Context } from "hono";
+import { type Context, Hono } from "hono";
 import { buildContentSecurityPolicy } from "./lib/security";
 import { authRoutes } from "./routes/auth";
 import { balanceRoutes } from "./routes/balance";

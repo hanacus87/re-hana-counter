@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { type Mode } from "../lib/counter";
-import { resetAll, sections, type CounterValues } from "../lib/state";
+import type { Mode } from "../lib/counter";
+import { type CounterValues, resetAll, sections } from "../lib/state";
 import { loadState, saveState } from "../lib/storage";
 import { TrashIcon } from "../shell/icons";
 import { CounterRow } from "./CounterRow";
