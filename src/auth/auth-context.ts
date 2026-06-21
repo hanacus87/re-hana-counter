@@ -5,6 +5,7 @@ export type User = {
 };
 
 export type AuthState = {
+  status: "loading" | "authenticated" | "unauthenticated";
   user: User | null;
   refresh: () => Promise<void>;
 };

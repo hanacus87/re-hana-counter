@@ -84,6 +84,44 @@ afterEach(() => {
   globalThis.fetch = realFetch;
 });
 
+describe("認証ローディング", () => {
+  test("/api/me の解決前は「Loading...」が表示され「Google でログイン」は表示されない", async () => {
+    let resolveMe!: (r: Response) => void;
+    const pending = new Promise<Response>((r) => {
+      resolveMe = r;
+    });
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.endsWith("/api/me")) return pending;
+      return new Response(null, { status: 204 });
+    }) as unknown as typeof fetch;
+    history.replaceState({}, "", "/balance");
+    render(<App />);
+    expect(await screen.findByText("Loading...")).toBeTruthy();
+    expect(screen.queryByText("Google でログイン")).toBeNull();
+    resolveMe(new Response(null, { status: 401 }));
+    await screen.findByText("Google でログイン");
+  });
+
+  test("/api/me が401で解決すると「Loading...」が消え「Google でログイン」が表示される", async () => {
+    let resolveMe!: (r: Response) => void;
+    const pending = new Promise<Response>((r) => {
+      resolveMe = r;
+    });
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.endsWith("/api/me")) return pending;
+      return new Response(null, { status: 204 });
+    }) as unknown as typeof fetch;
+    history.replaceState({}, "", "/balance");
+    render(<App />);
+    await screen.findByText("Loading...");
+    resolveMe(new Response(null, { status: 401 }));
+    expect(await screen.findByText("Google でログイン")).toBeTruthy();
+    expect(screen.queryByText("Loading...")).toBeNull();
+  });
+});
+
 describe("収支管理画面（アクセス制御）", () => {
   test("未ログインでアクセスすると「Google でログイン」ボタンが表示される", async () => {
     stub({ user: null });
@@ -439,5 +477,69 @@ describe("日次入力・編集", () => {
     expect(screen.getByLabelText("投資")).toBeTruthy();
     fireEvent.click(screen.getByLabelText("キャンセル"));
     expect(screen.queryByLabelText("投資")).toBeNull();
+  });
+});
+
+describe("ミューテーションのエラー（サーバ失敗ステータス網羅）", () => {
+  function stubMutation(status: number, getRecords: Records) {
+    const list = Object.entries(getRecords).map(([date, r]) => ({
+      date,
+      ...r,
+    }));
+    globalThis.fetch = (async (
+      input: RequestInfo | URL,
+      init?: RequestInit,
+    ) => {
+      const url = typeof input === "string" ? input : input.toString();
+      const method = init?.method ?? "GET";
+      if (url.endsWith("/api/me")) {
+        return new Response(JSON.stringify({ userName: "花子" }), {
+          status: 200,
+        });
+      }
+      if (url.includes("/api/balance")) {
+        if (method === "GET") {
+          return new Response(JSON.stringify({ records: list }), {
+            status: 200,
+          });
+        }
+        return new Response(null, { status });
+      }
+      return new Response(null, { status: 204 });
+    }) as unknown as typeof fetch;
+  }
+
+  test.each([
+    400, 401, 403, 500,
+  ])("保存がPUT%iで失敗するとエラー画面（%i）が表示されログイン画面に戻らない", async (status) => {
+    const { y, m } = currentYM();
+    stubMutation(status, {});
+    history.replaceState({}, "", "/balance");
+    render(<App />);
+    fireEvent.click(await screen.findByLabelText(key(y, m, 10)));
+    fireEvent.change(screen.getByLabelText("投資"), {
+      target: { value: "1000" },
+    });
+    fireEvent.change(screen.getByLabelText("回収"), {
+      target: { value: "3000" },
+    });
+    fireEvent.click(screen.getByLabelText("保存"));
+    expect(await screen.findByText(String(status))).toBeTruthy();
+    expect(screen.queryByText("Google でログイン")).toBeNull();
+  });
+
+  test.each([
+    400, 401, 403, 500,
+  ])("削除がDELETE%iで失敗するとエラー画面（%i）が表示されログイン画面に戻らない", async (status) => {
+    const { y, m } = currentYM();
+    stubMutation(status, {
+      [key(y, m, 10)]: { bet: 1000, recovery: 3000 },
+    });
+    history.replaceState({}, "", "/balance");
+    render(<App />);
+    fireEvent.click(await screen.findByLabelText(key(y, m, 10)));
+    fireEvent.click(screen.getByLabelText("削除"));
+    expect(await screen.findByText(String(status))).toBeTruthy();
+    expect(screen.queryByText("Google でログイン")).toBeNull();
   });
 });

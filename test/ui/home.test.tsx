@@ -46,6 +46,16 @@ describe("ヘッダー", () => {
   });
 });
 
+describe("認証エラー時のカウンタ", () => {
+  test("/api/me が500でもカウンタ画面は利用できエラー画面にならない", async () => {
+    globalThis.fetch = (async () =>
+      new Response(null, { status: 500 })) as unknown as typeof fetch;
+    render(<App />);
+    expect(await screen.findByLabelText("カウント (s1-triangle)")).toBeTruthy();
+    expect(screen.queryByText("500")).toBeNull();
+  });
+});
+
 describe("404 画面（ルーティング）", () => {
   test("未知のパス（例: /foo）ではカウンターではなく「404」が表示される", () => {
     history.pushState({}, "", "/foo");

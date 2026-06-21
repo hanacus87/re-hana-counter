@@ -1,26 +1,25 @@
 import { useState } from "react";
-import { Link, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import { Balance } from "../balance/Balance";
 import { Home } from "../counter/Home";
 import { Drawer } from "./Drawer";
-import { Flower, MenuIcon } from "./icons";
+import { Header } from "./Header";
+import { MenuIcon } from "./icons";
+import { StatusScreen } from "./StatusScreen";
 
 function NotFound() {
-  return <main className="notfound">404</main>;
+  return <StatusScreen code={404} />;
 }
 
 function LoginError() {
-  return <main className="notfound">403</main>;
+  return <StatusScreen code={403} />;
 }
 
 export function Shell() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <>
-      <header className="header">
-        <Link to="/" className="home-link" aria-label="ホームへ">
-          <Flower />
-        </Link>
+      <Header>
         <button
           type="button"
           className="menu-button"
@@ -29,7 +28,7 @@ export function Shell() {
         >
           <MenuIcon />
         </button>
-      </header>
+      </Header>
       {menuOpen && <Drawer onClose={() => setMenuOpen(false)} />}
       <Routes>
         <Route path="/" element={<Home />} />

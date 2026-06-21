@@ -1,22 +1,29 @@
 import { useState } from "react";
 import { useAuth } from "../auth/auth-context";
 import { LoginButton } from "../auth/LoginButton";
+import { ApiError } from "../lib/api";
 import { nextMonth, nextYear, prevMonth, prevYear } from "../lib/calendar";
+import { useThrowAsync } from "../lib/useThrowAsync";
 import { DayEditor } from "./DayEditor";
 import { MonthView } from "./MonthView";
 import { useBalanceRecords } from "./useBalanceRecords";
 import { YearView } from "./YearView";
 
 export function Balance() {
-  const { user } = useAuth();
-  const { records, save, remove, loadFailed, unauthorized } =
+  const { status, user } = useAuth();
+  const throwAsync = useThrowAsync();
+  const { records, save, remove, loadErrorCode, unauthorized } =
     useBalanceRecords(user);
   const [view, setView] = useState<"month" | "year">("month");
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [month, setMonth] = useState(() => new Date().getMonth() + 1);
   const [editingDate, setEditingDate] = useState<string | null>(null);
 
-  if (!user || unauthorized) {
+  if (status === "loading") {
+    return <main className="centered loading">Loading...</main>;
+  }
+
+  if (status === "unauthenticated" || unauthorized) {
     return (
       <main className="centered">
         <LoginButton />
@@ -24,18 +31,26 @@ export function Balance() {
     );
   }
 
-  if (loadFailed) {
-    throw new Error("failed to load balances");
+  if (loadErrorCode !== null) {
+    throw new ApiError(loadErrorCode);
   }
 
   const handleSave = async (date: string, bet: number, recovery: number) => {
-    await save(date, bet, recovery);
-    setEditingDate(null);
+    try {
+      await save(date, bet, recovery);
+      setEditingDate(null);
+    } catch (error) {
+      throwAsync(error);
+    }
   };
 
   const handleDelete = async (date: string) => {
-    await remove(date);
-    setEditingDate(null);
+    try {
+      await remove(date);
+      setEditingDate(null);
+    } catch (error) {
+      throwAsync(error);
+    }
   };
 
   return (

@@ -1,29 +1,27 @@
 import { Component, type ReactNode } from "react";
-import { Flower } from "./icons";
+import { ApiError } from "../lib/api";
+import { Header } from "./Header";
+import { StatusScreen } from "./StatusScreen";
 
 export class ErrorBoundary extends Component<
   { children: ReactNode },
-  { hasError: boolean }
+  { code: number | null }
 > {
   constructor(props: { children: ReactNode }) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { code: null };
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error: unknown) {
+    return { code: error instanceof ApiError ? error.status : 500 };
   }
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.code !== null) {
       return (
         <>
-          <header className="header">
-            <a href="/" className="home-link" aria-label="ホームへ">
-              <Flower />
-            </a>
-          </header>
-          <main className="notfound">500</main>
+          <Header reload />
+          <StatusScreen code={this.state.code} />
         </>
       );
     }

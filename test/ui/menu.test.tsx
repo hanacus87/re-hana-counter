@@ -119,4 +119,25 @@ describe("サイドメニュー", () => {
     fireEvent.click(screen.getByLabelText("メニュー"));
     expect(await screen.findByText("Google でログイン")).toBeTruthy();
   });
+
+  test.each([
+    403, 500,
+  ])("ログアウトがPOST%iで失敗するとエラー画面（%i）が表示される", async (status) => {
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.endsWith("/auth/logout")) {
+        return new Response(null, { status });
+      }
+      if (url.endsWith("/api/me")) {
+        return new Response(JSON.stringify({ userName: "花子" }), {
+          status: 200,
+        });
+      }
+      return new Response(null, { status: 204 });
+    }) as unknown as typeof fetch;
+    render(<App />);
+    fireEvent.click(await screen.findByLabelText("メニュー"));
+    fireEvent.click(await screen.findByRole("button", { name: "ログアウト" }));
+    expect(await screen.findByText(String(status))).toBeTruthy();
+  });
 });

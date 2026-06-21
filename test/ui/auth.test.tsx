@@ -25,6 +25,15 @@ describe("AuthProvider", () => {
     render(<App />);
     expect(await screen.findByText("Google でログイン")).toBeTruthy();
   });
+
+  test("/api/me が500のとき、エラー画面ではなく「Google でログイン」が表示される", async () => {
+    globalThis.fetch = (async () =>
+      new Response(null, { status: 500 })) as unknown as typeof fetch;
+    history.replaceState({}, "", "/balance");
+    render(<App />);
+    expect(await screen.findByText("Google でログイン")).toBeTruthy();
+    expect(screen.queryByText("500")).toBeNull();
+  });
 });
 
 describe("useAuth", () => {

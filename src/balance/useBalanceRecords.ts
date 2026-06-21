@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
 import type { User } from "../auth/auth-context";
+import { ApiError } from "../lib/api";
 import type { BalanceMap } from "../lib/balance";
-import {
-  fetchBalances,
-  removeBalance,
-  saveBalance,
-  UNAUTHORIZED,
-} from "./balance-api";
+import { fetchBalances, removeBalance, saveBalance } from "./balance-api";
 
 export function useBalanceRecords(user: User | null) {
   const [records, setRecords] = useState<BalanceMap>({});
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadErrorCode, setLoadErrorCode] = useState<number | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
 
   useEffect(() => {
@@ -18,10 +14,10 @@ export function useBalanceRecords(user: User | null) {
       void fetchBalances()
         .then(setRecords)
         .catch((error) => {
-          if (error instanceof Error && error.message === UNAUTHORIZED) {
+          if (error instanceof ApiError && error.status === 401) {
             setUnauthorized(true);
           } else {
-            setLoadFailed(true);
+            setLoadErrorCode(error instanceof ApiError ? error.status : 500);
           }
         });
     }
@@ -41,5 +37,5 @@ export function useBalanceRecords(user: User | null) {
     });
   };
 
-  return { records, save, remove, loadFailed, unauthorized };
+  return { records, save, remove, loadErrorCode, unauthorized };
 }
