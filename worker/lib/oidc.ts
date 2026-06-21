@@ -1,4 +1,5 @@
 import { verifyWithJwks } from "hono/jwt";
+import { timingSafeEqual } from "./timing-safe";
 
 export const GOOGLE_AUTH_ENDPOINT =
   "https://accounts.google.com/o/oauth2/v2/auth";
@@ -38,7 +39,7 @@ export async function verifyIdToken(
   if (typeof payload.exp !== "number" || options.nowSeconds >= payload.exp) {
     throw new Error("token expired");
   }
-  if (payload.nonce !== options.expectedNonce) {
+  if (!timingSafeEqual(payload.nonce, options.expectedNonce)) {
     throw new Error("nonce mismatch");
   }
   if (typeof payload.sub !== "string" || typeof payload.name !== "string") {

@@ -1,12 +1,9 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
     "types": ["@types/bun"],
-    "strict": true,
-    "noEmit": true
+    "jsx": "react-jsx"
   },
   "include": [
     "./**/*.test.ts",

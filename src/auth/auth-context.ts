@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, use } from "react";
 
 export type User = {
   userName: string;
@@ -12,7 +12,7 @@ export type AuthState = {
 export const AuthContext = createContext<AuthState | null>(null);
 
 export function useAuth(): AuthState {
-  const state = useContext(AuthContext);
+  const state = use(AuthContext);
   if (state === null) {
     throw new Error("useAuth must be used within an AuthProvider");
   }

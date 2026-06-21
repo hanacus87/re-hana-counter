@@ -10,6 +10,7 @@ import {
 import { verifyIdToken } from "../lib/oidc";
 import { SESSION_COOKIE, signSession } from "../lib/session";
 import { nowSeconds } from "../lib/time";
+import { timingSafeEqual } from "../lib/timing-safe";
 import { upsertUser } from "../lib/users";
 
 const STATE_COOKIE = "__Host-oauth_state";
@@ -70,7 +71,7 @@ authRoutes.get("/callback", async (c) => {
     if (!state || !nonce || !verifier || !code) {
       throw new Error("missing authorization context");
     }
-    if (c.req.query("state") !== state) {
+    if (!timingSafeEqual(c.req.query("state"), state)) {
       throw new Error("state mismatch");
     }
     const idToken = await exchangeCodeForIdToken({

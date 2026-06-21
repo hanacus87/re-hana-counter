@@ -28,6 +28,10 @@
   --toggle-width: 44px;
   --toggle-height: 24px;
 
+  --drawer-max-width: 280px;
+  --modal-max-width: 320px;
+  --balance-toggle-max-width: 120px;
+
   --color-bg: #333333;
   --color-panel: #555555;
   --color-panel-border: #6a6a6a;
@@ -36,7 +40,6 @@
   --color-text: #e8e8e8;
   --color-text-muted: #9aa0a6;
   --color-input-bg: #555555;
-  --color-input-border: #6e6e6e;
   --color-input-focus: #009844;
 
   --color-google-bg: #131314;
@@ -59,8 +62,6 @@
   --balance-positive: #009844;
   --balance-negative: #f24e57;
 
-  --glass-blur: 14px;
-  --glass-saturate: 150%;
   --glass-border: color-mix(in srgb, #ffffff 12%, transparent);
   --glass-border-strong: color-mix(in srgb, #ffffff 22%, transparent);
   --glass-highlight: inset 0 1px 0 color-mix(in srgb, #ffffff 16%, transparent);
@@ -73,10 +74,12 @@
   --glass-modal: color-mix(in srgb, var(--color-panel) 68%, transparent);
   --glass-drawer: color-mix(in srgb, var(--color-panel) 74%, transparent);
 
+  --overlay-drawer: rgba(0, 0, 0, 0.4);
+  --overlay-modal: rgba(0, 0, 0, 0.5);
+
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-fast: 120ms;
   --dur: 200ms;
-  --dur-slow: 280ms;
 }
 
 * {
@@ -135,7 +138,7 @@ body {
 .drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--overlay-drawer);
   display: flex;
   justify-content: flex-end;
   z-index: 10;
@@ -144,7 +147,7 @@ body {
 
 .drawer {
   width: 70%;
-  max-width: 280px;
+  max-width: var(--drawer-max-width);
   height: 100%;
   background: var(--glass-drawer);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
@@ -154,7 +157,7 @@ body {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  animation: drawer-slide-in var(--dur-slow) var(--ease);
+  animation: drawer-slide-in var(--dur) var(--ease);
 }
 
 .drawer-links {
@@ -229,12 +232,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.balance {
-  width: var(--content-width);
-  margin: 0 auto;
-  padding: 16px 0;
 }
 
 .home-link {
@@ -460,7 +457,7 @@ main {
 
 .balance-toggle button {
   flex: 1;
-  max-width: 120px;
+  max-width: var(--balance-toggle-max-width);
   min-height: var(--tap-size);
   border: 1px solid var(--color-panel-border);
   border-radius: var(--radius-button);
@@ -608,7 +605,7 @@ main {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -618,7 +615,7 @@ main {
 
 .modal {
   width: 80%;
-  max-width: 320px;
+  max-width: var(--modal-max-width);
   background: var(--glass-modal);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   backdrop-filter: blur(20px) saturate(160%);
@@ -744,6 +741,5 @@ main {
   :root {
     --dur-fast: 0.01ms;
     --dur: 0.01ms;
-    --dur-slow: 0.01ms;
   }
 }
