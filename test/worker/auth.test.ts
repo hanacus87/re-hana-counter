@@ -304,6 +304,13 @@ describe("コールバック — 成功時", () => {
     expect(session).toBeTruthy();
   });
 
+  test("コールバック応答に Cache-Control: no-store が含まれる", async () => {
+    const idToken = await mintIdToken(keys, idTokenClaims());
+    const { env } = testEnv();
+    const res = await runCallback(idToken, { env });
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+  });
+
   test("セッション Cookie は HttpOnly・Secure・SameSite=Lax である", async () => {
     const idToken = await mintIdToken(keys, idTokenClaims());
     const { env } = testEnv();
@@ -445,6 +452,29 @@ describe("ログアウト", () => {
       .getSetCookie()
       .find((c) => c.startsWith(`${SESSION_COOKIE}=`));
     expect(cookie).toContain("Max-Age=0");
+  });
+
+  test("応答は Clear-Site-Data で cookies と cache をクリアし storage は含めない", async () => {
+    const { env } = testEnv();
+    const res = await app.request(
+      `${ORIGIN}/auth/logout`,
+      { method: "POST", headers: { Origin: ORIGIN } },
+      env,
+    );
+    const clear = res.headers.get("Clear-Site-Data") ?? "";
+    expect(clear).toContain('"cookies"');
+    expect(clear).toContain('"cache"');
+    expect(clear).not.toContain('"storage"');
+  });
+
+  test("応答に Cache-Control: no-store が含まれる", async () => {
+    const { env } = testEnv();
+    const res = await app.request(
+      `${ORIGIN}/auth/logout`,
+      { method: "POST", headers: { Origin: ORIGIN } },
+      env,
+    );
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
   });
 
   test("Sec-Fetch-Site が same-origin のみの要求も受け付ける", async () => {

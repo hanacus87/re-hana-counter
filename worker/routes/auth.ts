@@ -103,5 +103,6 @@ authRoutes.get("/callback", async (c) => {
 
 authRoutes.post("/logout", (c) => {
   deleteCookie(c, SESSION_COOKIE, { path: "/", secure: true });
+  c.header("Clear-Site-Data", '"cache", "cookies"');
   return c.body(null, 204);
 });

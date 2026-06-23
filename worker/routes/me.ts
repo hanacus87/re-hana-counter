@@ -5,7 +5,6 @@ import { findUserName } from "../lib/users";
 export const meRoutes = new Hono<{ Bindings: Env }>();
 
 meRoutes.get("/me", async (c) => {
-  c.header("Cache-Control", "no-store");
   const sub = await sessionSub(c);
   if (!sub) {
     return c.body(null, 401);

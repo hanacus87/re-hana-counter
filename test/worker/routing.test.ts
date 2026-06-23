@@ -160,4 +160,27 @@ describe("セキュリティヘッダー", () => {
     expect(res.headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
     expect(res.headers.get("Permissions-Policy")).toBeTruthy();
   });
+
+  test("HTML 応答に X-Permitted-Cross-Domain-Policies: none が含まれる", async () => {
+    const { env } = mockEnv(indexHtmlResponse());
+    const res = await app.request("/balance", {}, env);
+    expect(res.headers.get("X-Permitted-Cross-Domain-Policies")).toBe("none");
+  });
+
+  test("HTML 応答に X-DNS-Prefetch-Control: off が含まれる", async () => {
+    const { env } = mockEnv(indexHtmlResponse());
+    const res = await app.request("/balance", {}, env);
+    expect(res.headers.get("X-DNS-Prefetch-Control")).toBe("off");
+  });
+
+  test("Permissions-Policy が camera・microphone・geolocation・payment・usb を空許可リストで拒否する", async () => {
+    const { env } = mockEnv(indexHtmlResponse());
+    const res = await app.request("/balance", {}, env);
+    const policy = res.headers.get("Permissions-Policy") ?? "";
+    expect(policy).toContain("camera=()");
+    expect(policy).toContain("microphone=()");
+    expect(policy).toContain("geolocation=()");
+    expect(policy).toContain("payment=()");
+    expect(policy).toContain("usb=()");
+  });
 });

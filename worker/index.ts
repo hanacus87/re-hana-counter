@@ -1,27 +1,10 @@
-import { type Context, Hono } from "hono";
-import { buildContentSecurityPolicy } from "./lib/security";
+import { type Context, Hono, type MiddlewareHandler } from "hono";
+import { applySecurityHeaders } from "./lib/security";
 import { authRoutes } from "./routes/auth";
 import { balanceRoutes } from "./routes/balance";
 import { meRoutes } from "./routes/me";
 
 const isDev = (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true;
-
-const securityHeaders: Record<string, string> = {
-  "Content-Security-Policy": buildContentSecurityPolicy(isDev),
-  "X-Content-Type-Options": "nosniff",
-  "Referrer-Policy": "no-referrer",
-  "X-Frame-Options": "DENY",
-  "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-  "Cross-Origin-Opener-Policy": "same-origin",
-  "Cross-Origin-Resource-Policy": "same-origin",
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-};
-
-function applySecurityHeaders(headers: Headers): void {
-  for (const [name, value] of Object.entries(securityHeaders)) {
-    headers.set(name, value);
-  }
-}
 
 async function serveApp(
   c: Context<{ Bindings: Env }>,
@@ -34,7 +17,7 @@ async function serveApp(
     headers.delete("Last-Modified");
     headers.set("Cache-Control", "no-store");
   }
-  applySecurityHeaders(headers);
+  applySecurityHeaders(headers, isDev);
   return new Response(asset.body, { status, headers });
 }
 
@@ -42,8 +25,16 @@ const app = new Hono<{ Bindings: Env }>();
 
 app.use("*", async (c, next) => {
   await next();
-  applySecurityHeaders(c.res.headers);
+  applySecurityHeaders(c.res.headers, isDev);
 });
+
+const noStore: MiddlewareHandler = async (c, next) => {
+  await next();
+  c.res.headers.set("Cache-Control", "no-store");
+};
+
+app.use("/api/*", noStore);
+app.use("/auth/*", noStore);
 
 app.route("/auth", authRoutes);
 app.route("/api", meRoutes);
@@ -58,8 +49,11 @@ app.notFound((c) => serveApp(c, 404));
 app.onError(async (_err, c) => {
   const pathname = new URL(c.req.url).pathname;
   if (pathname.startsWith("/api/") || pathname.startsWith("/auth/")) {
-    const headers = new Headers({ "Content-Type": "application/json" });
-    applySecurityHeaders(headers);
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    });
+    applySecurityHeaders(headers, isDev);
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers,
@@ -69,7 +63,7 @@ app.onError(async (_err, c) => {
     return await serveApp(c, 500);
   } catch {
     const headers = new Headers({ "Content-Type": "text/html; charset=utf-8" });
-    applySecurityHeaders(headers);
+    applySecurityHeaders(headers, isDev);
     return new Response("<!doctype html><title>500</title>", {
       status: 500,
       headers,

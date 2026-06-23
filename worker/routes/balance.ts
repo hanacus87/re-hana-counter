@@ -33,7 +33,6 @@ export const balanceRoutes = new Hono<{ Bindings: Env }>();
 balanceRoutes.use("/balance", requireSameOrigin);
 
 balanceRoutes.get("/balance", async (c) => {
-  c.header("Cache-Control", "no-store");
   const sub = await sessionSub(c);
   if (!sub) {
     return c.body(null, 401);
